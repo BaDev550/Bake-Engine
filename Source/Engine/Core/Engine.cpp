@@ -5,6 +5,27 @@ namespace Bake {
 	Engine::~Engine() {}
 
 	void Engine::Run() {
+		Logger::Info("Engine", "Starting engine...");
+
+		InitializeSubsystems();
+
+		while (!_exitRequest) {
+
+			for (auto* s : _activeSystems)
+				s->OnUpdate();
+		}
+
+		DestroySubsystems();
+
+		Memory::Allocator::CheckMemoryLeaks();
+	}
+
+	void Engine::RequestExit(const std::string& reason) {
+		Logger::Info("Engine", "Exiting reason: {}", reason);
+		_exitRequest = true;
+	}
+
+	void Engine::InitializeSubsystems() {
 		for (size_t i = 0; i < _initPendingSystems.size(); i++) {
 			auto* system = _initPendingSystems[i];
 			if (SubsystemReport report = system->OnCreate(this)) {
@@ -14,28 +35,17 @@ namespace Bake {
 			}
 			else {
 				Logger::Error("Engine", "Failed to initialize subsystem error: {}", report.GetMessage());
-				delete system;
-				system = nullptr;
+				Memory::Allocator::destroy<Subsystem>(system);
 			}
 		}
 		_initPendingSystems.clear();
-
-		while (!_exitRequest) {
-
-			for (auto* s : _activeSystems)
-				s->OnUpdate();
-		}
-
-		for (auto* s : _activeSystems) {
-			s->OnDestroy();
-			delete s;
-			s = nullptr;
-		}
-		_activeSystems.clear();
 	}
 
-	void Engine::RequestExit(const std::string& reason) {
-		Logger::Info("Engine", "Exiting reason: {}", reason);
-		_exitRequest = true;
+	void Engine::DestroySubsystems() {
+		for (auto* s : _activeSystems) {
+			s->OnDestroy();
+			Memory::Allocator::destroy<Subsystem>(s);
+		}
+		_activeSystems.clear();
 	}
 }

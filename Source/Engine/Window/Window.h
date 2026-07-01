@@ -1,17 +1,19 @@
 #pragma once
+#include "Engine/Defines/Types.h"
+#include "Engine/Memory/Allocator.h"
 #include <cstdint>
 #include <string>
 
 namespace Bake {
 	struct WindowNativeHandles {
-		uintptr_t handle = 0;
-		uintptr_t instance = 0;
+		uptr handle = 0;
+		uptr instance = 0;
 	};
 
 	struct WindowSpecs {
 		std::string Title = "Window";
-		uint32_t Width = 800;
-		uint32_t Height = 800;
+		u32 Width = 800;
+		u32 Height = 800;
 	};
 
 	class Window {
@@ -21,11 +23,11 @@ namespace Bake {
 
 		virtual void PollEvents() = 0;
 		[[nodiscard]] virtual WindowNativeHandles GetNativeHandles() const = 0;
-		[[nodiscard]] inline bool ShoudClose() const { return _shouldClose; }
+		[[nodiscard]] inline b8 ShoudClose() const { return _shouldClose; }
 
 		static Window* Create(const WindowSpecs& specs);
 	protected:
 		WindowSpecs _specs;
-		bool _shouldClose = false;
+		b8 _shouldClose = false;
 	};
 }

@@ -1,10 +1,11 @@
 #pragma once
+#include "Engine/Defines/Types.h"
 #include <iostream>
 #include <string>
 #include <string_view>
 
 namespace Bake {
-	enum class LogLevel {
+	enum class LogLevel : u8 {
 		Info,
 		Warn,
 		Error,

@@ -1,5 +1,6 @@
 #include "Engine/Window/WindowSubsystem.h"
 #include "Engine/Core/Engine.h"
+#include "Engine/Memory/Allocator.h"
 
 namespace Bake {
 	SubsystemReport WindowSubsystem::OnCreate(Engine* engine) {
@@ -23,7 +24,6 @@ namespace Bake {
 	}
 
 	void Bake::WindowSubsystem::OnDestroy() {
-		delete _window;
-		_window = nullptr;
+		Memory::Allocator::destroy<Window>(_window);
 	}
 }

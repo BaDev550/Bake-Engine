@@ -50,8 +50,8 @@ namespace Bake {
 
 	WindowNativeHandles Win32_Window::GetNativeHandles() const {
 		WindowNativeHandles handles{};
-		handles.handle = reinterpret_cast<uintptr_t>(_hwnd);
-		handles.instance = reinterpret_cast<uintptr_t>(_hinstance);
+		handles.handle = reinterpret_cast<uptr>(_hwnd);
+		handles.instance = reinterpret_cast<uptr>(_hinstance);
 		return handles;
 	}
 

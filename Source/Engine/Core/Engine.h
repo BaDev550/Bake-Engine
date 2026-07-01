@@ -1,6 +1,8 @@
 #pragma once
 #include "Engine/Core/Subsystem.h"
 #include "Engine/Core/Logger.h"
+#include "Engine/Memory/Allocator.h"
+#include "Engine/Defines/Types.h"
 
 #include <vector>
 #include <exception>
@@ -20,7 +22,7 @@ namespace Bake {
 
 		template<typename T, typename... Args>
 		void AddSubsystem(Args&&... args) {
-			T* system = new T(std::forward<Args>(args)...);
+			T* system = Memory::Allocator::construct<T>(std::forward<Args>(args)...);
 			_initPendingSystems.push_back(system);
 		}
 
@@ -32,7 +34,10 @@ namespace Bake {
 			return static_cast<T&>(*_activeSystems[it->second]);
 		}
 	private:
-		bool _exitRequest = false;
+		void InitializeSubsystems();
+		void DestroySubsystems();
+
+		b8 _exitRequest = false;
 
 		std::vector<Subsystem*> _activeSystems;
 		std::vector<Subsystem*> _initPendingSystems;
