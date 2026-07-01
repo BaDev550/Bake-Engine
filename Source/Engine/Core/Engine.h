@@ -1,5 +1,6 @@
 #pragma once
 #include "Engine/Core/Subsystem.h"
+#include "Engine/Core/Logger.h"
 
 #include <vector>
 #include <exception>
@@ -27,15 +28,14 @@ namespace Bake {
 		T& GetSubsystem() {
 			auto it = _activeLookup.find(typeid(T));
 			if (it == _activeLookup.end())
-				assert(false);
-				//throw std::runtime_error("Failed to find");
+				Logger::Assert(false, "Engine", "Failed to find subsystem");
 			return static_cast<T&>(*_activeSystems[it->second]);
 		}
 	private:
 		bool _exitRequest = false;
 
-		std::vector<Subystem*> _activeSystems;
-		std::vector<Subystem*> _initPendingSystems;
+		std::vector<Subsystem*> _activeSystems;
+		std::vector<Subsystem*> _initPendingSystems;
 		std::unordered_map<std::type_index, size_t> _activeLookup;
 	};
 }

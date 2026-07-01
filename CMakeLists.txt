@@ -17,9 +17,23 @@ target_include_directories(BakeEngine PRIVATE
 	${CMAKE_CURRENT_SOURCE_DIR}/Source
 )
 
-target_link_libraries(BakeEngine PRIVATE
-	glfw
-	glm::glm-header-only
-	Vulkan::Vulkan
-	GPUOpen::VulkanMemoryAllocator
-)
+if (WIN32)
+	target_compile_definitions(BakeEngine PRIVATE 
+		_CRT_SECURE_NO_WARNINGS 
+		_BAKE_PLATFORM_WINDOWS
+	)
+	target_link_libraries(BakeEngine PRIVATE
+		glfw
+		glm::glm-header-only
+		Vulkan::Vulkan
+		GPUOpen::VulkanMemoryAllocator
+	)
+elseif(LINUX)
+	target_compile_definitions(BakeEngine PRIVATE _BAKE_PLATFORM_LINUX)
+	target_link_libraries(BakeEngine PRIVATE
+		glfw
+		glm::glm-header-only
+		Vulkan::Vulkan
+		GPUOpen::VulkanMemoryAllocator
+	)
+endif()

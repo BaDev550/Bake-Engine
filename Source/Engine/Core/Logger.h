@@ -33,6 +33,15 @@ namespace Bake {
 			std::string msg = std::format(fmt, std::forward<Args>(args)...);
 			Print(LogLevel::Critical, catagory, msg);
 		}
+
+		template<typename... Args>
+		static void Assert(bool result, std::string_view catagory, std::format_string<Args...> fmt, Args&&... args) {
+			if (result) return;
+
+			std::string msg = std::format(fmt, std::forward<Args>(args)...);
+			Print(LogLevel::Critical, catagory, msg);
+			std::abort();
+		}
 	private:
 		static void Print(LogLevel level, std::string_view catagory, std::string_view msg);
 	};

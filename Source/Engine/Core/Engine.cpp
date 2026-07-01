@@ -1,4 +1,4 @@
-#include "Engine.h"
+#include "Engine/Core/Engine.h"
 
 namespace Bake {
 	Engine::Engine() {}
@@ -7,11 +7,13 @@ namespace Bake {
 	void Engine::Run() {
 		for (size_t i = 0; i < _initPendingSystems.size(); i++) {
 			auto* system = _initPendingSystems[i];
-			if (system->OnCreate(this)) {
+			if (SubsystemReport report = system->OnCreate(this)) {
+				Logger::Info("Engine", "Subsystem added: {}", system->GetTypeID().name());
 				_activeLookup[system->GetTypeID()] = i;
 				_activeSystems.push_back(std::move(system));
 			}
 			else {
+				Logger::Error("Engine", "Failed to initialize subsystem error: {}", report.GetMessage());
 				delete system;
 				system = nullptr;
 			}
@@ -30,5 +32,10 @@ namespace Bake {
 			s = nullptr;
 		}
 		_activeSystems.clear();
+	}
+
+	void Engine::RequestExit(const std::string& reason) {
+		Logger::Info("Engine", "Exiting reason: {}", reason);
+		_exitRequest = true;
 	}
 }

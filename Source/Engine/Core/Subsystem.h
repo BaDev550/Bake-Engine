@@ -16,9 +16,9 @@ namespace Bake {
 	};
 
 	class Engine;
-	class Subystem {
+	class Subsystem {
 	public:
-		virtual ~Subystem() = default;
+		virtual ~Subsystem() = default;
 
 		virtual SubsystemReport OnCreate(Engine* engine) { _engine = engine; return SubsystemReport(); }
 		virtual void OnUpdate() {}
