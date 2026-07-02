@@ -13,17 +13,37 @@ namespace Bake {
 		_window = Window::Create(specs);
 		if (!_window)
 			return SubsystemReport("Failed to create window!");
+		_window->SetEventCallback([this](EventBase& e) { this->EventCallback(e); });
 		return SubsystemReport();
 	}
 
 	void Bake::WindowSubsystem::OnUpdate() {
 		_window->PollEvents();
-
-		if (_window->ShoudClose())
-			_engine->RequestExit("Window closed");
 	}
 
 	void Bake::WindowSubsystem::OnDestroy() {
 		Memory::Allocator::destroy<Window>(_window);
+	}
+
+	void WindowSubsystem::EventCallback(EventBase& e) {
+		if (e.GetEventType() == EventType::WindowClosed)
+			_engine->RequestExit("Window closed");
+
+		if (e.GetEventType() == EventType::WindowResized) {
+			WindowResizedEvent& resizeEvent = static_cast<WindowResizedEvent&>(e);
+			Logger::Info("WindowSubsystemEvent", "New size: {}x{}", resizeEvent.GetWidth(), resizeEvent.GetHeight());
+		}
+
+		if (e.GetEventType() == EventType::KeyPressed) {
+			KeyPressedEvent& keyEvent = static_cast<KeyPressedEvent&>(e);
+			Logger::Info("WindowSubsystemEvent", "Key pressed: {}", keyEvent.GetKeyCode());
+		}
+
+		if (e.GetEventType() == EventType::WindowFocused) {
+			Logger::Info("WindowSubsystemEvent", "Window focused");
+		}
+		if (e.GetEventType() == EventType::WindowLostFocus) {
+			Logger::Info("WindowSubsystemEvent", "Window lost focus");
+		}
 	}
 }

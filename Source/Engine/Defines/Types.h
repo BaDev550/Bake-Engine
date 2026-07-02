@@ -3,6 +3,7 @@
 #include <limits>
 
 namespace Bake {
+#define BIT(x) (1 << x)
 	using c8 = char;
 
 	using i32 = int32_t;

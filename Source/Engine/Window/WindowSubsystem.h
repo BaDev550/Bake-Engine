@@ -13,5 +13,7 @@ namespace Bake {
 		Window& GetWindow() { return *_window; }
 	private:
 		Window* _window = nullptr;
+
+		void EventCallback(EventBase& e);
 	};
 }

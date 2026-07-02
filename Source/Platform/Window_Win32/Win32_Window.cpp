@@ -3,12 +3,56 @@
 
 namespace Bake {
 	LRESULT CALLBACK Win32_WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) {
-		switch (uMsg) {
-		case WM_CLOSE:
-			PostQuitMessage(0);
-			return 0;
-		default: return DefWindowProc(hwnd, uMsg, wParam, lParam);
+		WindowSpecs* data = nullptr;
+		if (uMsg == WM_NCCREATE) {
+			CREATESTRUCT* pCreate = reinterpret_cast<CREATESTRUCT*>(lParam);
+			data = reinterpret_cast<WindowSpecs*>(pCreate->lpCreateParams);
+			SetWindowLongPtr(hwnd, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(data));
 		}
+		else {
+			data = reinterpret_cast<WindowSpecs*>(GetWindowLongPtr(hwnd, GWLP_USERDATA));
+		}
+
+		if (data) {
+			switch (uMsg) {
+			case WM_CLOSE: {
+				WindowClosedEvent e;
+				if (data->EventCallback) data->EventCallback(e);
+
+				PostQuitMessage(0);
+				return 0;
+			}
+			case WM_SIZE: {
+				u32 newWidth = LOWORD(lParam);
+				u32 newHeight = HIWORD(lParam);
+				data->Width = newWidth;
+				data->Height = newHeight;
+
+				WindowResizedEvent e(newWidth, newHeight);
+				if (data->EventCallback) data->EventCallback(e);
+				break;
+			}
+			case WM_KEYDOWN: {
+				u32 key = static_cast<u32>(wParam);
+				KeyPressedEvent e(key);
+				if (data->EventCallback) data->EventCallback(e);
+				break;
+			}
+			case WM_MOUSEMOVE: { break; }
+			case WM_MOUSEHWHEEL: { break; }
+			case WM_SETFOCUS: {
+				WindowFocusedEvent e;
+				if (data->EventCallback) data->EventCallback(e);
+				break;
+			}
+			case WM_KILLFOCUS: {
+				WindowLostFocusEvent e;
+				if (data->EventCallback) data->EventCallback(e);
+				break;
+			}
+			}
+		}
+		return DefWindowProc(hwnd, uMsg, wParam, lParam);
 	}
 
 	Win32_Window::Win32_Window(const WindowSpecs& specs) {
@@ -29,7 +73,7 @@ namespace Bake {
 			nullptr,
 			nullptr,
 			_hinstance,
-			nullptr
+			&_specs
 		);
 		if (_hwnd == nullptr) {
 			Logger::Error("Win32_Window", "Failed to create window");
@@ -60,10 +104,6 @@ namespace Bake {
 		while (PeekMessage(&msg, nullptr, 0, 0, PM_REMOVE)) {
 			TranslateMessage(&msg);
 			DispatchMessage(&msg);
-
-			if (msg.message == WM_QUIT) {
-				_shouldClose = true;
-			}
 		}
 	}
 }
