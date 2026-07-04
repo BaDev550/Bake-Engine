@@ -38,6 +38,12 @@ namespace Bake {
 				if (data->EventCallback) data->EventCallback(e);
 				break;
 			}
+			case WM_KEYUP: {
+				u32 key = static_cast<u32>(wParam);
+				KeyReleasedEvent e(key);
+				if (data->EventCallback) data->EventCallback(e);
+				break;
+			}
 			case WM_MOUSEMOVE: { break; }
 			case WM_MOUSEHWHEEL: { break; }
 			case WM_SETFOCUS: {

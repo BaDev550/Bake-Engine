@@ -1,5 +1,7 @@
 #include "Engine/Core/Engine.h"
 
+#include "Engine/Input/InputSubsystem.h"
+
 namespace Bake {
 	Engine::Engine() {}
 	Engine::~Engine() {}

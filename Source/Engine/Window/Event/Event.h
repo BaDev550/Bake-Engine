@@ -1,5 +1,7 @@
 #pragma once
 #include "Engine/Defines/Types.h"
+#include <string>
+#include <string_view>
 
 namespace Bake {
 	enum class EventType : u8 {
@@ -30,7 +32,7 @@ namespace Bake {
 	class EventBase {
 	public:
 		virtual ~EventBase() = default;
-		virtual const char* GetName() const = 0;
+		virtual std::string_view GetName() const = 0;
 		virtual EventType GetEventType() const = 0;
 		virtual EventCategory GetEventCategory() const = 0;
 
@@ -42,11 +44,11 @@ namespace Bake {
 	public:
 		virtual ~Event() = default;
 
-		virtual const char* GetName() const override final { return static_cast<const Derived*>(this)->Impl_GetName(); }
+		virtual std::string_view GetName() const override final { return static_cast<const Derived*>(this)->Impl_GetName(); }
 		virtual EventType GetEventType() const override final { return static_cast<const Derived*>(this)->Impl_GetType(); }
 		virtual EventCategory GetEventCategory() const override final { return static_cast<const Derived*>(this)->Impl_GetCategory(); }
 	};
-#define GENERATED_EVENT(type, category) const char* Impl_GetName() const { return #type; } \
+#define GENERATED_EVENT(type, category) std::string_view Impl_GetName() const { return #type; } \
 										EventType Impl_GetType() const { return EventType::type; } \
 										EventCategory Impl_GetCategory() const { return EventCategory::category; }
 
@@ -70,6 +72,17 @@ namespace Bake {
 		GENERATED_EVENT(KeyPressed, Keyboard);
 
 		KeyPressedEvent(u32 keycode) : _keyCode(keycode) {}
+
+		[[nodiscard]] u32 GetKeyCode() const { return _keyCode; }
+	private:
+		u32 _keyCode;
+	};
+
+	class KeyReleasedEvent : public Event<KeyReleasedEvent> {
+	public:
+		GENERATED_EVENT(KeyReleased, Keyboard);
+
+		KeyReleasedEvent(u32 keycode) : _keyCode(keycode) {}
 
 		[[nodiscard]] u32 GetKeyCode() const { return _keyCode; }
 	private:

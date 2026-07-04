@@ -28,9 +28,10 @@ namespace Bake {
 
 		virtual void PollEvents() = 0;
 		void SetEventCallback(const EventCallback& callback) { _specs.EventCallback = callback; }
+		void ClearEventCallback() { _specs.EventCallback = nullptr; }
 		[[nodiscard]] virtual WindowNativeHandles GetNativeHandles() const = 0;
 		
-		static Window* Create(const WindowSpecs& specs);
+		static Window* Create(const WindowSpecs& specs); // TODO(0x): find a better way to handle PAL
 	protected:
 		WindowSpecs _specs;
 	};

@@ -17,11 +17,13 @@ namespace Bake {
 		return SubsystemReport();
 	}
 
-	void Bake::WindowSubsystem::OnUpdate() {
+	void WindowSubsystem::OnUpdate() {
 		_window->PollEvents();
 	}
 
-	void Bake::WindowSubsystem::OnDestroy() {
+	void WindowSubsystem::OnDestroy() {
+		ClearKeyCallback();
+		_window->ClearEventCallback();
 		Memory::Allocator::destroy<Window>(_window);
 	}
 
@@ -29,21 +31,13 @@ namespace Bake {
 		if (e.GetEventType() == EventType::WindowClosed)
 			_engine->RequestExit("Window closed");
 
-		if (e.GetEventType() == EventType::WindowResized) {
-			WindowResizedEvent& resizeEvent = static_cast<WindowResizedEvent&>(e);
-			Logger::Info("WindowSubsystemEvent", "New size: {}x{}", resizeEvent.GetWidth(), resizeEvent.GetHeight());
-		}
-
 		if (e.GetEventType() == EventType::KeyPressed) {
 			KeyPressedEvent& keyEvent = static_cast<KeyPressedEvent&>(e);
-			Logger::Info("WindowSubsystemEvent", "Key pressed: {}", keyEvent.GetKeyCode());
+			_keyCallback(keyEvent.GetKeyCode(), true);
 		}
-
-		if (e.GetEventType() == EventType::WindowFocused) {
-			Logger::Info("WindowSubsystemEvent", "Window focused");
-		}
-		if (e.GetEventType() == EventType::WindowLostFocus) {
-			Logger::Info("WindowSubsystemEvent", "Window lost focus");
+		else if (e.GetEventType() == EventType::KeyReleased) {
+			KeyReleasedEvent& keyEvent = static_cast<KeyReleasedEvent&>(e);
+			_keyCallback(keyEvent.GetKeyCode(), false);
 		}
 	}
 }
